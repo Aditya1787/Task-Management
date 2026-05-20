@@ -1,11 +1,27 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, CheckSquare, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, CheckSquare, LogOut, User, Sun, Moon } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('theme', 'dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const handleLogout = () => {
     logout();
@@ -23,11 +39,18 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 bg-slate-800/80 backdrop-blur-sm border-slate-700/50 border-r border-slate-700/50 h-screen flex flex-col shadow-sm fixed left-0 top-0">
-      <div className="p-6 border-b border-slate-700/50">
+      <div className="p-6 border-b border-slate-700/50 flex justify-between items-center gap-2">
         <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
           <CheckSquare className="w-6 h-6" />
           TaskMaster
         </h1>
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-slate-100 transition-colors shrink-0"
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+        >
+          {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-indigo-500" />}
+        </button>
       </div>
 
       <div className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">

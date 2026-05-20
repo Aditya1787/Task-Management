@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, User as UserIcon, Plus } from 'lucide-react';
+import { ArrowLeft, Clock, User as UserIcon, Plus, Trash2 } from 'lucide-react';
 import api from '../api/axios';
 import AuthContext from '../context/AuthContext';
 
@@ -45,6 +45,17 @@ const ProjectDetails = () => {
       fetchProjectData();
     } catch (error) {
       console.error('Error updating task status', error);
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        await api.delete(`/tasks/${taskId}`);
+        fetchProjectData();
+      } catch (error) {
+        console.error('Error deleting task', error);
+      }
     }
   };
 
@@ -153,7 +164,23 @@ const ProjectDetails = () => {
               <div className="p-4 flex-1 overflow-y-auto space-y-4">
                 {getTasksByStatus(col.id).map(task => (
                   <div key={task._id} className="bg-slate-800/80 backdrop-blur-sm border-slate-700/50 p-4 rounded-xl shadow-sm border-slate-700/50 hover:shadow-md transition group">
-                    <h4 className="font-semibold text-slate-100 mb-2">{task.title}</h4>
+                    <div className="flex justify-between items-start gap-2 mb-2">
+                      <h4 className="font-semibold text-slate-100">{task.title}</h4>
+                      {user?.role === 'admin' && (
+                        <button
+                          onClick={() => handleDeleteTask(task._id)}
+                          disabled={task.status === 'completed'}
+                          className={`p-1 rounded transition shrink-0 ${
+                            task.status === 'completed' 
+                              ? 'text-slate-600 cursor-not-allowed opacity-40' 
+                              : 'text-red-400 hover:text-red-300 hover:bg-slate-700/50'
+                          }`}
+                          title={task.status === 'completed' ? 'Completed tasks cannot be deleted' : 'Delete Task'}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                     {task.description && <p className="text-xs text-slate-400 mb-4 line-clamp-2">{task.description}</p>}
                     
                     <div className="flex items-center justify-between text-xs text-slate-400 mb-4">

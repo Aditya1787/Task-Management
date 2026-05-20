@@ -112,6 +112,10 @@ const deleteTask = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to delete tasks' });
     }
 
+    if (task.status === 'completed') {
+      return res.status(400).json({ message: 'Completed tasks cannot be deleted' });
+    }
+
     await task.deleteOne();
 
     res.json({ id: req.params.id, message: 'Task removed' });
